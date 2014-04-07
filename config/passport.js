@@ -15,6 +15,8 @@ if (process.env.VCAP_SERVICES) {
 var UserSchema = require('../models/User.js').UserSchema;
 var User = db.model('users', UserSchema);
 
+var Userdb = require('./dbintegration.js');
+
 // expose this function to our app using module.exports
 module.exports = function(passport) {
 

@@ -9,6 +9,10 @@
     "mongodb": ">= 1.3.19",
     "mongoose": ">= 3.8.0",
     "express": "3.4.8",
+    "sqlite3": "*",
+    "passport": "*",
+    "passport-local": "*",
+    "node-arp": "*",
     "jade": "*"
   }
 }

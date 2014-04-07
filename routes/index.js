@@ -15,6 +15,12 @@ var Poll = db.model('polls', PollSchema);
 var UserSchema = require('../models/User.js').UserSchema;
 var User = db.model('users', UserSchema);
 
+var DBIntegration = require('../config/dbintegration.js');
+
+var arp = require('node-arp');
+
+DBIntegration.insertUser("ozgen", "ozgen337", "10.100.49.90", "aa:aa:aa:aa:aa:aa");
+
 User.count({name: "ozgen"}, function(error, count){
         if(!error) {
             if(count == 0) {
@@ -113,6 +119,12 @@ exports.userinfo = function(req, res) {
 
 exports.success = function(req, res) {
     var user = req.user;
+    var ip = req.connection.remoteAddress;
+    arp.getMAC(ip, function(err, mac) { 
+        if(!err)
+            console.log("Remote Mac: " + mac);
+    });
+    console.log("Remote ip: " + ip);
     res.json({username: user.name});
 }
 
