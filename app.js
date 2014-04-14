@@ -13,6 +13,8 @@ var passport = require('passport');
 var https = require('https');
 var fs = require('fs');
 
+var flash = require('connect-flash');
+
 var app = express();
 
 require('./config/passport')(passport);
@@ -21,6 +23,7 @@ var options = {
     key: fs.readFileSync('private.pem'),
     cert: fs.readFileSync('certificate.pem')
 };
+
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -38,8 +41,10 @@ app.use(express.bodyParser());
 app.use(express.session({secret: 'ozgen'}));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(flash());
 
 app.use(app.router);
+
 
 // development only
 if ('development' == app.get('env')) {
@@ -52,17 +57,18 @@ app.get('/polls/:id', routes.poll);
 app.post('/polls', routes.create);
 app.get('/userinfo', routes.userinfo);
 app.get('/success', routes.success);
+app.get('/failure', routes.failure);
 //app.post('/login', routes.login);
 app.post('/login', passport.authenticate('local-login', {
         successRedirect: '/success',
-        failureRedirect: '/login',
+        failureRedirect: '/failure',
         failureFlash: true
-    }));
+   }));
 app.get('/users', user.list);
 
-//http.createServer(app).listen(app.get('port'), function(){
-//  console.log('Express server listening on port ' + app.get('port'));
-//});
-https.createServer(options, app).listen(443, function(){
+http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
+//https.createServer(options, app).listen(443, function(){
+//  console.log('Express server listening on port ' + app.get('port'));
+//});
