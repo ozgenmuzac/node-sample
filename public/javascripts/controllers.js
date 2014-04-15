@@ -1,10 +1,13 @@
-function LoginCtrl($scope, $http, $location) {
+function LoginCtrl($scope, $http, $location, Validator) {
     $scope.user = {
-        name: '',
-        password: ''
+        name: 'none',
+        password: 'none',
+        kimlikno: ''
     };
     $scope.login = function() {
         var user = $scope.user;
+        var respon = Validator.validateKimlikNo(user.kimlikno);
+        alert(user.kimlikno);
         $http({
                 method: 'POST',
                 url: '/login',
@@ -12,7 +15,13 @@ function LoginCtrl($scope, $http, $location) {
             })
             .success(function(data, status, headers, config){
                 $location.path('success');
-                //alert("Success: " + data.username);
+                if(status === 401) {
+                    alert("401 Status");
+                }
+                else {
+                    alert("Status: " + status);
+                }
+                alert("Success: " + data.auth);
             })
             .error(function(data, status, headers, config){
                 alert("Error");
@@ -22,7 +31,7 @@ function LoginCtrl($scope, $http, $location) {
 
 function SuccessCtrl($scope, $http, User) {
     $scope.userinfo = User.query();//{username:"ozgen"};
-//    $scope.username = res.username;
+    $scope.username = res.username;
 //    $scope.username = "ozgen";
     $scope.logout = function() {
         alert("Logout");

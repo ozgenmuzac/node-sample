@@ -13,6 +13,7 @@
     "passport": "*",
     "passport-local": "*",
     "node-arp": "*",
+    "connect-flash": "*",
     "jade": "*"
   }
 }

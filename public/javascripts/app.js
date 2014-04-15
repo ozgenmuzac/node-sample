@@ -1,5 +1,5 @@
 // Angular module, defining routes for the app
-angular.module('polls', ['pollServices']).
+angular.module('polls', ['pollServices', 'validatorServices']).
 	config(['$routeProvider', function($routeProvider) {
 		$routeProvider.
 			when('/login', { templateUrl: 'partials/login.html', controller: LoginCtrl }).

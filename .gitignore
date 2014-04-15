@@ -2,3 +2,4 @@ private.pem
 certificate.pem
 node_modules/*
 *.swp
+test.db

@@ -19,7 +19,7 @@ var DBIntegration = require('../config/dbintegration.js');
 
 var arp = require('node-arp');
 
-DBIntegration.insertUser("ozgen", "ozgen337", "10.100.49.90", "aa:aa:aa:aa:aa:aa");
+//DBIntegration.insertUser("ozgen", "ozgen337", "40513719662", "10.100.49.90", "aa:aa:aa:aa:aa:aa");
 
 User.count({name: "ozgen"}, function(error, count){
         if(!error) {
@@ -41,21 +41,23 @@ User.count({name: "ozgen"}, function(error, count){
     });
 
 
-exports.login = function(req, res) {
-    var reqBody = req.body,
-			// Filter out choices with empty text
-			passwd = reqBody.password,
-            username = reqBody.name
-			// Build up poll object to save
-            console.log("Username: " + username);
-            console.log("Password: " + passwd);
-			userObj = {name: username, password: passwd};
-				
-	// Create poll model from built up poll object
-	var user = new User(userObj);
-	
-    res.json({'auth':true});
+exports.failure = function(req, res) {
+    console.log("Message: " + req.flash('loginMessage'));
+    res.status(401);
+    res.json({auth:false});
 };
+
+exports.success = function(req, res) {
+    //var user = req.user;
+    //var kimlikno = req.user.kimlikno;
+    //var ip = req.connection.remoteAddress;
+    //arp.getMAC(ip, function(err, mac) { 
+    //    if(!err)
+    //        console.log("Remote Mac: " + mac);
+    //});
+    //console.log("Remote ip: " + ip);
+    res.json({auth: true});
+}
 
 // Main application view
 exports.index = function(req, res) {
@@ -113,19 +115,21 @@ exports.poll = function(req, res) {
 
 exports.userinfo = function(req, res) {
     var name = req.user.name;
-    console.log("User: "+ name);
+    console.log("User-name: "+ name);
     res.json({username: name});
 }
 
 exports.success = function(req, res) {
-    var user = req.user;
-    var ip = req.connection.remoteAddress;
-    arp.getMAC(ip, function(err, mac) { 
-        if(!err)
-            console.log("Remote Mac: " + mac);
-    });
-    console.log("Remote ip: " + ip);
-    res.json({username: user.name});
+    //var user = req.user;
+    console.log("EHDE: " + req.flash('loginMessage'));
+    //var kimlikno = req.user.kimlikno;
+    //var ip = req.connection.remoteAddress;
+    //arp.getMAC(ip, function(err, mac) { 
+    //    if(!err)
+    //        console.log("Remote Mac: " + mac);
+    //});
+    //console.log("Remote ip: " + ip);
+    res.json({auth: true});
 }
 
 // JSON API for creating a new poll
