@@ -31,7 +31,6 @@ function LoginCtrl($scope, $http, $location, Validator) {
 
 function SuccessCtrl($scope, $http, User) {
     $scope.userinfo = User.query();//{username:"ozgen"};
-    $scope.username = res.username;
 //    $scope.username = "ozgen";
     $scope.logout = function() {
         alert("Logout");

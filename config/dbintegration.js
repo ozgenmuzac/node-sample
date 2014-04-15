@@ -3,6 +3,18 @@
 var sqlite3 = require("sqlite3").verbose();
 var db = new sqlite3.Database("test.db");
 
+
+var mongoose = require('mongoose');
+var dbm;
+if (process.env.VCAP_SERVICES) {
+   var env = JSON.parse(process.env.VCAP_SERVICES);
+   dbm = mongoose.createConnection(env['mongodb-2.2'][0].credentials.url);
+} else {
+   dbm = mongoose.createConnection('localhost', 'pollsapp');
+}
+var UserSchema = require('../models/User.js').UserSchema;
+var User = dbm.model('users', UserSchema);
+
 function createTable() {
     db.run("CREATE TABLE IF NOT EXISTS users(username varchar(25), password varchar(100), tckimlik varchar(32), ipaddress varchar(32), macaddress varchar(32))");
 }
@@ -67,8 +79,13 @@ module.exports = {
                         callback(null);
                     }
                     else {
-                        console.log("Row: " + row);
-                        callback(row);
+                        console.log("Row name: " + row.username);
+                        console.log("Row password: " + row.password);
+                        console.log("Row kimlik: " + row.tckimlik);
+                        var newUser = new User();
+                        newUser.name = row.tckimlik;
+                        newUser.password = row.password
+                        callback(err, newUser);
                     }
                 });
         });

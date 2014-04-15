@@ -83,6 +83,8 @@ module.exports = function(passport) {
     // used to deserialize the user
     passport.deserializeUser(function(id, done) {
         Userdb.findById(id, function(err, user) {
+            console.log("Return user name: " + user.name);
+            console.log("Return user password: " + user.password);
             done(err, user);
         });
     });
