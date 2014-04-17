@@ -12,11 +12,13 @@ if (process.env.VCAP_SERVICES) {
    db = mongoose.createConnection('localhost', 'pollsapp');
 }
 // load up the user model
-var UserSchema = require('../models/User.js').UserSchema;
-var User = db.model('users', UserSchema);
+//var UserSchema = require('../models/User.js').UserSchema;
+//var User = db.model('users', UserSchema);
 
 var Userdb = require('./dbintegration.js');
 var arp = require('node-arp');
+
+var User = require('../models/UserS.js').User;
 
 function validateKimlikNo(kno)
 {
@@ -77,14 +79,12 @@ module.exports = function(passport) {
 
     // used to serialize the user for the session
     passport.serializeUser(function(user, done) {
-        done(null, user.name);
+        done(null, user.kimlikno);
     });
 
     // used to deserialize the user
     passport.deserializeUser(function(id, done) {
         Userdb.findById(id, function(err, user) {
-            console.log("Return user name: " + user.name);
-            console.log("Return user password: " + user.password);
             done(err, user);
         });
     });
@@ -95,7 +95,7 @@ module.exports = function(passport) {
     // we are using named strategies since we have one for login and one for signup
 	// by default, if there was no name, it would just be called 'local'
 
-    passport.use('local-signup', new LocalStrategy({
+/*    passport.use('local-signup', new LocalStrategy({
         // by default, local strategy uses username and password, we will override with name
         usernameField : 'name',
         passwordField : 'password',
@@ -138,7 +138,7 @@ module.exports = function(passport) {
 
         });
 
-    }));
+    }));*/
 
 /*    passport.use('local-login', new LocalStrategy({
         // by default, local strategy uses username and password, we will override with name
@@ -193,20 +193,13 @@ module.exports = function(passport) {
                         if(!err) {
                             console.log("Remote Mac: " + mac);
                             var kimlikno = req.body.kimlikno;
-                            Userdb.insertTCKimlikNo(kimlikno, ip, mac, function(res) {
-
+                            var uid = makeid();
+                            Userdb.insertTCKimlikNo(uid, kimlikno, ip, mac, function(res) {
                                 if(!(res.status)) {
                                     return done(null, false, req.flash('loginMessage', "User could not inserted"));
                                 }
                                 else {
-                                    var newUser = new User();
-                                    //newUser.name = res.name;
-                                    //newUser.password = res.password; 
-                                    newUser.name = kimlikno;
-                                    console.log("New User name: " + newUser.name);
-                                    newUser.password = "none";
-                                    makeid();
-                                    newUser._id = "533d4cc81eab0af824f9c2dc";
+                                    var newUser = new User("none", kimlikno, "none", ip, mac);
                                     return done(null, newUser);
                                 }
                             });
@@ -216,22 +209,5 @@ module.exports = function(passport) {
                     });
                 }
             });
-        /*User.findOne({ 'name' :  name }, function(err, user) {
-            // if there are any errors, return the error before anything else
-            if (err)
-                return done(err);
-
-            // if no user is found, return the message
-            if (!user)
-                return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
-
-			// if the user is found but the password is wrong
-            if (user.password != password)
-                return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
-
-            // all is well, return successful user
-            console.log("ID: "+ user._id);
-            return done(null, user);
-        });*/
-    }));
+        }));
 }

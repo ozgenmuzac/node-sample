@@ -8,16 +8,13 @@ INTERFACE="eth13"
 function create_if_chain_not_exists()
 {
     TABLE_NAME=$1; 
-    if iptables -t mangle -nL $TABLE_NAME 2>&1 > /dev/null
+    if ! iptables -t mangle -nL $TABLE_NAME 2>&1 > /dev/null
     then
-        echo "chain $TABLE_NAME exits";
-    else
         echo "chain $TABLE_NAME does not exists."
         iptables -N $CHAIN_NAME -t mangle
         iptables -t mangle -A PREROUTING -j $CHAIN_NAME
         iptables -t mangle -A $CHAIN_NAME -i $INTERFACE -j MARK --set-mark 99
     fi
-        
 }
 
 function allow_mac_address()
@@ -36,24 +33,21 @@ function allow_mac_address()
 
 function redirect_to_local()
 {
-    iptables -t nat -A PREROUTING -m mark --mark 99 -p tcp --dport 80 -j DNAT --to-destination 10.100.49.94:3000
-    iptables -t filter -A FORWARD -m mark --mark 99 -j DROP
+    iptables-save | grep 'PREROUTING -p tcp -m mark --mark 0x63 -m tcp --dport 80 -j DNAT' 2>&1 > /dev/null 
+    if [ $? -eq 1 ]
+    then
+        iptables -t nat -A PREROUTING -m mark --mark 99 -p tcp --dport 80 -j DNAT --to-destination 10.100.49.94:3000
+        iptables -t filter -A FORWARD -m mark --mark 99 -j DROP
+    fi
 }
 
-if [ $# -ne 2 ]
+if [ $# -ne 1 ]
 then
     echo "Usage: $0 <mac_address> <boolean>"
     exit 1
 fi
 
 MAC_ADDRESS=$1
-IS_FIRST_USE=$2
 create_if_chain_not_exists $CHAIN_NAME
 allow_mac_address $MAC_ADDRESS
-if [ "$IS_FIRST_USE" == "true" ]
-then
-    redirect_to_local
-fi
-
-
-
+redirect_to_local

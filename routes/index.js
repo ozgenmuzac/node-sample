@@ -15,13 +15,13 @@ var Poll = db.model('polls', PollSchema);
 var UserSchema = require('../models/User.js').UserSchema;
 var User = db.model('users', UserSchema);
 
-var DBIntegration = require('../config/dbintegration.js');
+var Userdb = require('../config/dbintegration.js');
 
 var arp = require('node-arp');
 
-//DBIntegration.insertUser("ozgen", "ozgen337", "40513719662", "10.100.49.90", "aa:aa:aa:aa:aa:aa");
+var exec = require('child_process');
 
-User.count({name: "ozgen"}, function(error, count){
+/*User.count({name: "ozgen"}, function(error, count){
         if(!error) {
             if(count == 0) {
                 console.log("User does not exists! Inserting");
@@ -39,7 +39,16 @@ User.count({name: "ozgen"}, function(error, count){
             }
         }
     });
+*/
 
+exports.isLoggedIn = function(req, res, next) {
+    if(!req.user) {
+        res.redirect('/failure');
+    }
+    else {
+        next();
+    }
+}
 
 exports.failure = function(req, res) {
     console.log("Message: " + req.flash('loginMessage'));
@@ -48,15 +57,42 @@ exports.failure = function(req, res) {
 };
 
 exports.success = function(req, res) {
-    //var user = req.user;
-    //var kimlikno = req.user.kimlikno;
-    //var ip = req.connection.remoteAddress;
-    //arp.getMAC(ip, function(err, mac) { 
-    //    if(!err)
-    //        console.log("Remote Mac: " + mac);
-    //});
-    //console.log("Remote ip: " + ip);
+    var user = req.user;
+
+    exec.execFile('./allow_user.sh', [user.mac], function(err, stdout, stderr) {
+        console.log("Stdout: " + stdout);
+        console.log("Stderr: " + stderr);
+    });
+
+    console.log("Success name: " + user.name);
+    console.log("Success kimlik: " + user.kimlikno);
+    console.log("Success pass: " + user.password);
+    console.log("Success ip: " + user.ip);
+    console.log("Success mac: " + user.mac);
+
     res.json({auth: true});
+};
+
+exports.logout = function(req, res) {
+    console.log("Logout");
+    var kimlikno = req.user.kimlikno;
+    req.session.destroy(function(err){
+        if(err) {
+            console.log("Session destroy error: " + err);
+            res.json({auth: false});
+        }
+        else {
+            Userdb.removeWithId(kimlikno, function(res){
+                if(res == true) {
+                    console.log("Removed second")
+                }
+                else {
+                    console.log("What the fuck")
+                }
+            });
+            res.json({auth: true});
+        }
+    });
 }
 
 // Main application view
@@ -114,22 +150,8 @@ exports.poll = function(req, res) {
 };
 
 exports.userinfo = function(req, res) {
-    var name = req.user.name;
-    console.log("User-name: "+ name);
+    var name = req.user.kimlikno;
     res.json({username: name});
-}
-
-exports.success = function(req, res) {
-    //var user = req.user;
-    console.log("EHDE: " + req.flash('loginMessage'));
-    //var kimlikno = req.user.kimlikno;
-    //var ip = req.connection.remoteAddress;
-    //arp.getMAC(ip, function(err, mac) { 
-    //    if(!err)
-    //        console.log("Remote Mac: " + mac);
-    //});
-    //console.log("Remote ip: " + ip);
-    res.json({auth: true});
 }
 
 // JSON API for creating a new poll

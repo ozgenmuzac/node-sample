@@ -3,20 +3,10 @@
 var sqlite3 = require("sqlite3").verbose();
 var db = new sqlite3.Database("test.db");
 
-
-var mongoose = require('mongoose');
-var dbm;
-if (process.env.VCAP_SERVICES) {
-   var env = JSON.parse(process.env.VCAP_SERVICES);
-   dbm = mongoose.createConnection(env['mongodb-2.2'][0].credentials.url);
-} else {
-   dbm = mongoose.createConnection('localhost', 'pollsapp');
-}
-var UserSchema = require('../models/User.js').UserSchema;
-var User = dbm.model('users', UserSchema);
+var User = require('../models/UserS.js').User;
 
 function createTable() {
-    db.run("CREATE TABLE IF NOT EXISTS users(username varchar(25), password varchar(100), tckimlik varchar(32), ipaddress varchar(32), macaddress varchar(32))");
+    db.run("CREATE TABLE IF NOT EXISTS users(uid varchar(25), username varchar(25), password varchar(100), tckimlik varchar(32), ipaddress varchar(32), macaddress varchar(32))");
 }
 
 module.exports = {
@@ -27,14 +17,14 @@ module.exports = {
         });
     },
 
-    insertTCKimlikNo: function(kimlikno, ipaddress, macaddress, callback) {
+    insertTCKimlikNo: function(uid, kimlikno, ipaddress, macaddress, callback) {
         db.serialize(function(){
             createTable();
-            db.run("INSERT INTO users (username, password, tckimlik, ipaddress, macaddress) VALUES (?,?,?,?,?)", ["none", "none", kimlikno, ipaddress, macaddress], 
+            db.run("INSERT INTO users (uid, username, password, tckimlik, ipaddress, macaddress) VALUES (?,?,?,?,?,?)", [uid, "none", "none", kimlikno, ipaddress, macaddress], 
                 function(err){
                         var stat = false;
                         if(err) {
-                            console.log("Error occured when inserting kimlik no");
+                            console.log("Error occured when inserting kimlik no: "+ err);
                             stat = false;
                         }
                         else{
@@ -79,13 +69,26 @@ module.exports = {
                         callback(null);
                     }
                     else {
-                        console.log("Row name: " + row.username);
-                        console.log("Row password: " + row.password);
-                        console.log("Row kimlik: " + row.tckimlik);
-                        var newUser = new User();
-                        newUser.name = row.tckimlik;
-                        newUser.password = row.password
+                        if(!row) {
+                            console.log("Row is NULL");
+                            callback(err, null);
+                        }
+                        var newUser = new User(row.username, row.tckimlik, row.password, row.ipaddress, row.macaddress);
                         callback(err, newUser);
+                    }
+                });
+        });
+    },
+
+    removeWithId : function(kimlikno, callback) {
+        db.serialize(function(){
+            db.run("DELETE FROM users WHERE tckimlik=?", [kimlikno],
+                function(err) {
+                    if(err) {
+                        callback(false);
+                    }
+                    else {
+                        callback(true);
                     }
                 });
         });

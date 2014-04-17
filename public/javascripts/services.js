@@ -7,10 +7,19 @@ angular.module('pollServices', ['ngResource']).
 		})
 	}).
     factory('User', function($resource) {
-		return $resource('userinfo', {}, {
-			// Use this method for getting current user information
-			query: { method: 'GET', isArray: false }
-		})
+		return {
+            info: function() {
+                return $resource('userinfo', {}, {
+			    // Use this method for getting current user information
+			    query: { method: 'GET', isArray: false }
+		        });
+            },
+            logout: function() {
+                return $resource('logout', {}, {
+			    query: { method: 'GET', isArray: false }
+		        });
+            }
+        };
 	}).
 	factory('socket', function($rootScope) {
 		var socket = io.connect();

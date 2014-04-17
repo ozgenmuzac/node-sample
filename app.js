@@ -55,10 +55,10 @@ app.get('/', routes.index);
 app.get('/polls/polls', routes.list);
 app.get('/polls/:id', routes.poll);
 app.post('/polls', routes.create);
-app.get('/userinfo', routes.userinfo);
+app.get('/userinfo', routes.isLoggedIn, routes.userinfo);
 app.get('/success', routes.success);
 app.get('/failure', routes.failure);
-//app.post('/login', routes.login);
+app.get('/logout', routes.logout);
 app.post('/login', passport.authenticate('local-login', {
         successRedirect: '/success',
         failureRedirect: '/failure',

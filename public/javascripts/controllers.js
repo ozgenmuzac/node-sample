@@ -7,21 +7,19 @@ function LoginCtrl($scope, $http, $location, Validator) {
     $scope.login = function() {
         var user = $scope.user;
         var respon = Validator.validateKimlikNo(user.kimlikno);
-        alert(user.kimlikno);
         $http({
                 method: 'POST',
                 url: '/login',
                 data: user
             })
             .success(function(data, status, headers, config){
-                $location.path('success');
                 if(status === 401) {
-                    alert("401 Status");
+                    $location.path('login');
                 }
                 else {
-                    alert("Status: " + status);
+                    $location.path('success');
+                    //alert("Success: " + data.auth);
                 }
-                alert("Success: " + data.auth);
             })
             .error(function(data, status, headers, config){
                 alert("Error");
@@ -29,11 +27,19 @@ function LoginCtrl($scope, $http, $location, Validator) {
     };
 }
 
-function SuccessCtrl($scope, $http, User) {
-    $scope.userinfo = User.query();//{username:"ozgen"};
-//    $scope.username = "ozgen";
+function SuccessCtrl($scope, $http, $location, User) {
+    $scope.userinfo = User.info().query();//{username:"ozgen"};
+
     $scope.logout = function() {
-        alert("Logout");
+        $http({
+            method: 'GET', 
+            url: '/logout'})
+            .success(function(data, status, headers, config){
+                $location.path('login');
+            })
+            .error(function(data, status, header, config){
+                alert("Error occured try again to logout")
+            })
     };
 }
 
