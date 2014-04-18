@@ -59,6 +59,8 @@ exports.failure = function(req, res) {
 exports.success = function(req, res) {
     var user = req.user;
 
+    console.log("Host: " + req.get('host'));
+
     exec.execFile('./allow_user.sh', [user.mac], function(err, stdout, stderr) {
         console.log("Stdout: " + stdout);
         console.log("Stderr: " + stderr);
@@ -72,6 +74,21 @@ exports.success = function(req, res) {
 
     res.json({auth: true});
 };
+
+exports.connect = function(socket) {
+    console.log("CONNECT");
+    socket.on("send", function(data){
+        console.log("Coming data: " + data)
+        socket.emit("response", "resp-resp");
+    });
+    socket.on("disconnect", function(){
+        console.log("DISDISCONNECT");
+    });
+}
+
+exports.disconnect = function(socket) {
+    console.log("DISCONNECT");
+}
 
 exports.logout = function(req, res) {
     console.log("Logout");
@@ -97,7 +114,7 @@ exports.logout = function(req, res) {
 
 // Main application view
 exports.index = function(req, res) {
-	res.render('index');
+	res.render('index', {url: req.get('host')});
 };
 
 // JSON API for list of polls

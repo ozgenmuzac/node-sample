@@ -4,6 +4,9 @@ function LoginCtrl($scope, $http, $location, Validator) {
         password: 'none',
         kimlikno: ''
     };
+    var url = $location.absUrl();
+    alert("url: " + url);
+//    $scope.redirectPage = $location.path
     $scope.login = function() {
         var user = $scope.user;
         var respon = Validator.validateKimlikNo(user.kimlikno);
@@ -27,7 +30,7 @@ function LoginCtrl($scope, $http, $location, Validator) {
     };
 }
 
-function SuccessCtrl($scope, $http, $location, User) {
+function SuccessCtrl($scope, $http, $location, socket, User) {
     $scope.userinfo = User.info().query();//{username:"ozgen"};
 
     $scope.logout = function() {
@@ -41,6 +44,14 @@ function SuccessCtrl($scope, $http, $location, User) {
                 alert("Error occured try again to logout")
             })
     };
+
+    socket.on("response", function(data) {
+        alert("Response: " + data);
+    });
+
+    $scope.connect = function() {
+        socket.emit("send", "hede");
+    }
 }
 
 // Controller for the poll list

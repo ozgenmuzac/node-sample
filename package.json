@@ -14,6 +14,7 @@
     "passport-local": "*",
     "node-arp": "*",
     "connect-flash": "*",
-    "jade": "*"
+    "jade": "*",
+    "socket.io": "*"
   }
 }

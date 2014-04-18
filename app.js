@@ -17,6 +17,9 @@ var flash = require('connect-flash');
 
 var app = express();
 
+var server = http.createServer(app);
+var io = require('socket.io').listen(server);
+
 require('./config/passport')(passport);
 
 var options = {
@@ -66,7 +69,11 @@ app.post('/login', passport.authenticate('local-login', {
    }));
 app.get('/users', user.list);
 
-http.createServer(app).listen(app.get('port'), function(){
+io.sockets.on('connection', routes.connect);
+//io.sockets.on('disconnect', routes.disconnect);
+
+
+server.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
 //https.createServer(options, app).listen(443, function(){
