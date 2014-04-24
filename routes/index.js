@@ -52,8 +52,7 @@ exports.isLoggedIn = function(req, res, next) {
 
 exports.failure = function(req, res) {
     console.log("Message: " + req.flash('loginMessage'));
-    res.status(401);
-    res.json({auth:false});
+    res.status(401).json({auth:false});
 };
 
 exports.success = function(req, res) {
@@ -61,7 +60,7 @@ exports.success = function(req, res) {
 
     console.log("Host: " + req.get('host'));
 
-    exec.execFile('./allow_user.sh', [user.mac], function(err, stdout, stderr) {
+    exec.execFile('./allow_user.sh', ["--allow", user.mac], function(err, stdout, stderr) {
         console.log("Stdout: " + stdout);
         console.log("Stderr: " + stderr);
     });
@@ -76,23 +75,38 @@ exports.success = function(req, res) {
 };
 
 exports.connect = function(socket) {
-    console.log("CONNECT");
+    var ip = socket.handshake.headers['x-forwarded-for'] || socket.handshake.address.address;
     socket.on("send", function(data){
-        console.log("Coming data: " + data)
         socket.emit("response", "resp-resp");
     });
     socket.on("disconnect", function(){
-        console.log("DISDISCONNECT");
+        Userdb.removeWithIp(ip, function(mac){
+            if(mac) {
+                exec.execFile('./allow_user.sh', ["--deny", mac], function(err, stdout, stderr) {
+                    console.log("Stdout: " + stdout);
+                    console.log("Stderr: " + stderr);
+                });
+/*                req.session.destroy(function(err) {
+                    if(err) {
+                        console.log("Failed to session destroy after window closed");
+                    }
+                    else {
+                        console.log("Successfully session destroyed after window closed");
+                    }
+                });
+*/
+            }
+            else {
+                console.log("Could not removed");
+            }
+        });
     });
-}
-
-exports.disconnect = function(socket) {
-    console.log("DISCONNECT");
 }
 
 exports.logout = function(req, res) {
     console.log("Logout");
     var kimlikno = req.user.kimlikno;
+    var mac = req.user.mac;
     req.session.destroy(function(err){
         if(err) {
             console.log("Session destroy error: " + err);
@@ -100,11 +114,14 @@ exports.logout = function(req, res) {
         }
         else {
             Userdb.removeWithId(kimlikno, function(res){
-                if(res == true) {
-                    console.log("Removed second")
+                if(res) {
+                    exec.execFile('./allow_user.sh', ["--deny", mac], function(err, stdout, stderr) {
+                        console.log("Stdout: " + stdout);
+                        console.log("Stderr: " + stderr);
+                    });
                 }
                 else {
-                    console.log("What the fuck")
+                    console.log("Error occured when logging out!");
                 }
             });
             res.json({auth: true});
@@ -169,6 +186,15 @@ exports.poll = function(req, res) {
 exports.userinfo = function(req, res) {
     var name = req.user.kimlikno;
     res.json({username: name});
+}
+
+exports.userstatus = function(req, res) {
+    if(!req.user) {
+        res.status(401).send();
+    }
+    else {
+        res.status(200).send();
+    }
 }
 
 // JSON API for creating a new poll

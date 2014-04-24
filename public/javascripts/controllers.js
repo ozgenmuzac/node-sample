@@ -4,12 +4,13 @@ function LoginCtrl($scope, $http, $location, Validator) {
         password: 'none',
         kimlikno: ''
     };
-    var url = $location.absUrl();
-    alert("url: " + url);
+    var url = $location.absUrl();//for getting full url
 //    $scope.redirectPage = $location.path
+    $scope.init = function() {
+        alert("Init");
+    };
     $scope.login = function() {
         var user = $scope.user;
-        var respon = Validator.validateKimlikNo(user.kimlikno);
         $http({
                 method: 'POST',
                 url: '/login',
@@ -52,6 +53,25 @@ function SuccessCtrl($scope, $http, $location, socket, User) {
     $scope.connect = function() {
         socket.emit("send", "hede");
     }
+}
+
+function InitCtrl($scope, $http, $location, User) {
+    $scope.init = function() {
+        $http({
+            method: 'GET',
+            url: '/status'})
+            .success(function(data, status, headers, config){
+                if(status === 401) {
+                    $location.path('login');
+                }
+                else {
+                    $location.path('success');
+                }
+            })
+            .error(function(data, status, header, config){
+                $location.path('login');
+            })
+    };
 }
 
 // Controller for the poll list

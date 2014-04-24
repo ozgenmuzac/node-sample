@@ -3,6 +3,8 @@
 
 CHAIN_NAME="INTERNET"
 INTERFACE="eth13"
+#INTERFACE="$(awk -F= '$1 ~/BLUE_DEV/ {print $2}' /var/efw/ethernet/settings)"
+RED_ADDRESS="$(awk -F= '$1 ~/RED_ADDRESS/ {print $2}' /var/efw/uplinks/main/settings)"
 
 
 function create_if_chain_not_exists()
@@ -25,9 +27,9 @@ function allow_mac_address()
     echo $NUMBER_OF_RULE
     if [[ $NUMBER_OF_RULE =~ $re ]];        
     then
-        iptables -t mangle -I $CHAIN_NAME $NUMBER_OF_RULE -m mac --mac-source $MAC -j RETURN 
+        iptables -t mangle -I $CHAIN_NAME $NUMBER_OF_RULE -m mac --mac-source $MAC -j RETURN 2>&1 > /dev/null 
     else    
-        iptables -t mangle -A $CHAIN_NAME -m mac --mac-source $MAC -j RETURN 
+        iptables -t mangle -A $CHAIN_NAME -m mac --mac-source $MAC -j RETURN 2>&1 > /dev/null
     fi   
 }
 
@@ -36,18 +38,37 @@ function redirect_to_local()
     iptables-save | grep 'PREROUTING -p tcp -m mark --mark 0x63 -m tcp --dport 80 -j DNAT' 2>&1 > /dev/null 
     if [ $? -eq 1 ]
     then
-        iptables -t nat -A PREROUTING -m mark --mark 99 -p tcp --dport 80 -j DNAT --to-destination 10.100.49.94:3000
-        iptables -t filter -A FORWARD -m mark --mark 99 -j DROP
+        iptables -t nat -A PREROUTING -m mark --mark 99 -p tcp --dport 80 -j DNAT --to-destination $RED_ADDRESS:3000 2>&1 > /dev/null
+        #iptables -t nat -A PREROUTING -m mark --mark 99 -p tcp --dport 443 -j DNAT --to-destination $RED_ADDRESS:3000 2>&1 > /dev/null
+        iptables -t filter -A FORWARD -m mark --mark 99 -j DROP 2>&1 > /dev/null
     fi
 }
 
-if [ $# -ne 1 ]
+function deny_mac_address()
+{
+    MAC=$1;
+    iptables -t mangle -D $CHAIN_NAME -m mac --mac-source $MAC -j RETURN 2>&1 > /dev/null
+}
+
+if [ $# -ne 2 ]
 then
-    echo "Usage: $0 <mac_address> <boolean>"
+    echo "Usage: $0 <--allow/--deny> <mac_address>"
     exit 1
 fi
 
-MAC_ADDRESS=$1
+MOD=$1
+MAC_ADDRESS=$2
+
 create_if_chain_not_exists $CHAIN_NAME
-allow_mac_address $MAC_ADDRESS
+
+if [ "$MOD" == "--allow" ]
+then
+    allow_mac_address $MAC_ADDRESS
+elif [ "$MOD" == "--deny" ]
+then
+    deny_mac_address $MAC_ADDRESS
+else
+    echo "Wrong flag specified"
+fi
+
 redirect_to_local

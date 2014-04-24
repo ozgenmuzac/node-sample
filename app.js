@@ -59,6 +59,7 @@ app.get('/polls/polls', routes.list);
 app.get('/polls/:id', routes.poll);
 app.post('/polls', routes.create);
 app.get('/userinfo', routes.isLoggedIn, routes.userinfo);
+app.get('/status', routes.userstatus);
 app.get('/success', routes.success);
 app.get('/failure', routes.failure);
 app.get('/logout', routes.logout);

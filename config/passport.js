@@ -24,6 +24,8 @@ function validateKimlikNo(kno)
 {
     if(typeof kno == "string")
     {
+        if(kno.length != 11)
+            return false;
         if(kno.charAt(0) == '0')
             return false;
         var no = kno.split('');
@@ -182,6 +184,10 @@ module.exports = function(passport) {
 		// find a user whose name is the same as the forms name
 		// we are checking to see if the user trying to login already exists
         console.log("Kimlik no: " + req.body.kimlikno);
+        if(!validateKimlikNo(req.body.kimlikno)) {
+            return done(null, false, req.flash('loginMessage', 'Kimlik no is not valid!'));
+        }
+
         Userdb.isUserExists(req.body.kimlikno, function(res){
                 if(res) {
                     return done(null, false, req.flash('loginMessage','Kimlik no is already in use!'));

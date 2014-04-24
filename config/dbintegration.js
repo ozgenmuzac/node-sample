@@ -66,14 +66,16 @@ module.exports = {
                 function(err, row) {
                     if(err) {
                         console.log("Error occured when getting user!");
-                        callback(null);
+                        callback(err, null);
                     }
                     else {
+                        var newUser;
                         if(!row) {
-                            console.log("Row is NULL");
-                            callback(err, null);
+                            newUser = null;
                         }
-                        var newUser = new User(row.username, row.tckimlik, row.password, row.ipaddress, row.macaddress);
+                        else {
+                            newUser = new User(row.username, row.tckimlik, row.password, row.ipaddress, row.macaddress);
+                        }
                         callback(err, newUser);
                     }
                 });
@@ -92,6 +94,41 @@ module.exports = {
                     }
                 });
         });
+    },
+
+    removeWithIp : function(ipaddress, callback) {
+        db.serialize(function(){
+            db.get("SELECT * FROM users WHERE ipaddress=?", [ipaddress],
+                function(err, row) {
+                    if(err) {
+                        console.log("Error occured when getting row before delete it")
+                    }
+                    else {
+                        if(!row) {
+                            console.log("No row found for deleting!")
+                        }
+                        else {
+                            if(row == undefined) {
+                                callback(null);
+                            }
+                            else {
+                                var mac = row.macaddress;
+                                callback(mac);
+                                db.run("DELETE FROM users WHERE ipaddress=?", [ipaddress],
+                                    function(err) {
+                                        if(err) {
+                                            callback(null);
+                                        }
+                                        else {
+                                            callback(mac);
+                                        }
+                                    });
+                            }
+                        }
+                    }
+                });
+        });
+
     }
 };
 

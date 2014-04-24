@@ -16,7 +16,7 @@ html(lang='en', ng-app='polls')
         script(src='/javascripts/controllers.js')
         script(src='/javascripts/validators.js')
         script(src='/socket.io/socket.io.js')
-    body(ng-controller="PollListCtrl")
+    body(ng-controller="InitCtrl", ng-init="init()")
         nav.navbar.navbar-inverse.navbar-fixed-top(role='navigation')
             div.navbar-header
                 a.navbar-brand(href='#/login') Korugan 
