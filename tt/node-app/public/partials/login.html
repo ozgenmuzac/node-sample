@@ -1,0 +1,71 @@
+<div class="page-header" ng-init="init()">
+	<h1>Login Page</h1>
+</div>
+
+<div ng-show="errorMessage != null">
+    <label style="color: red; font-size:16pt">{{errorMessage}}</label>
+</div>
+
+<!--<div id="tabs"> 
+    <ul class="nav nav-tabs">
+        <li data-toggle="tab"
+            ng-repeat="tab in tabs"
+            ng-class="{active:isActiveTab(tab.url)}"
+            ng-click="onClickTab(tab)">{{tab.title}}
+        </li>
+    </ul>
+    <br><br>
+    <div id="mainView">
+        <div ng-include="currentTab"></div>
+    </div>
+</div>-->
+
+<!--<script type="text/ng-template" id="one.tpl.html">-->
+<div ng-show="method == 'tckimlik'">
+    <form role="form" ng-submit="login()" name="authform">
+        <!--<div class="form-group" ng-style="{ width: '15%' }">-->
+        <div class="form-group">
+            <label for="username">TC Kimlik No</label>
+            <!--<input type="text" ng-model="user.name" class="form-control" id="username" placeholder="Username">-->
+            <input  type="text" ng-model="user.kimlikno" kimlikno required class="form-control" id="kimlik" placeholder="Kimlik No" ng-pattern="/^[0-9]{11}$/" >
+            <!--<input type="password" ng-model="user.password" class="form-control" id="password" placeholder="Password">-->
+        </div>
+        
+        
+        <p><hr></p>
+        
+        <div class="row" id="test">
+            <div class="col-xs-6">
+                <button class="btn btn-primary pull-right" type="submit" ng-disabled="authform.$invalid">Login &raquo;</button>
+            </div>
+        </div>
+        
+        <p>&nbsp;</p>
+    </form>
+</div>
+
+<!--</script>-->
+
+<!--<script type="text/ng-template" id="two.tpl.html">-->
+<div ng-show="method == 'sms'">
+    <form role="form" ng-submit="send()" name="smsform">
+        <!--<div class="form-group" ng-style="{ width: '15%' }">-->
+        <div class="form-group">
+            <label for="phonenumber">Your Phone Number</label>
+            <input  type="text" ng-model="user.phonenumber" Phone Number Required class="form-control" id="phonenumber" placeholder="Phone Number" >
+        </div>
+        
+        
+        <p><hr></p>
+        
+        <div class="row" id="ptest">
+            <div class="col-xs-6">
+                <button class="btn btn-primary pull-right" type="submit">Send &raquo;</button>
+            </div>
+        </div>
+        
+        <p>&nbsp;</p>
+    </form>
+<!--</script>-->
+</div>
+

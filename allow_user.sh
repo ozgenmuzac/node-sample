@@ -39,7 +39,6 @@ function redirect_to_local()
     if [ $? -eq 1 ]
     then
         iptables -t nat -A PREROUTING -m mark --mark 99 -p tcp --dport 80 -j DNAT --to-destination $RED_ADDRESS:3000 2>&1 > /dev/null
-        #iptables -t nat -A PREROUTING -m mark --mark 99 -p tcp --dport 443 -j DNAT --to-destination $RED_ADDRESS:3000 2>&1 > /dev/null
         iptables -t filter -A FORWARD -m mark --mark 99 -j DROP 2>&1 > /dev/null
     fi
 }
@@ -50,25 +49,43 @@ function deny_mac_address()
     iptables -t mangle -D $CHAIN_NAME -m mac --mac-source $MAC -j RETURN 2>&1 > /dev/null
 }
 
-if [ $# -ne 2 ]
+function remove_chain()
+{
+    iptables -t mangle -D PREROUTING -j $CHAIN_NAME 2>&1 > /dev/null
+    iptables -t mangle -F $CHAIN_NAME 2>&1 > /dev/null
+    iptables -t mangle -X $CHAIN_NAME 2>&1 > /dev/null
+    iptables -t nat -D PREROUTING -m mark --mark 99 -p tcp --dport 80 -j DNAT --to-destination $RED_ADDRESS:3000 2>&1 > /dev/null
+    iptables -t filter -D FORWARD -m mark --mark 99 -j DROP 2>&1 > /dev/null
+}
+
+if [ $# -gt 2 ]
 then
-    echo "Usage: $0 <--allow/--deny> <mac_address>"
+    echo "Usage: $0 <--start/--remove/--allow/--deny> <mac_address>(use with allow or deny)"
     exit 1
 fi
 
 MOD=$1
 MAC_ADDRESS=$2
 
-create_if_chain_not_exists $CHAIN_NAME
 
 if [ "$MOD" == "--allow" ]
 then
+    create_if_chain_not_exists $CHAIN_NAME
     allow_mac_address $MAC_ADDRESS
+    redirect_to_local
 elif [ "$MOD" == "--deny" ]
 then
+    create_if_chain_not_exists $CHAIN_NAME
     deny_mac_address $MAC_ADDRESS
+    redirect_to_local
+elif [ "$MOD" == "--start" ]
+then
+    create_if_chain_not_exists $CHAIN_NAME
+    redirect_to_local
+elif [ "$MOD" == "--remove" ]
+then
+    remove_chain
 else
     echo "Wrong flag specified"
 fi
 
-redirect_to_local
