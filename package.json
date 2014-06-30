@@ -6,13 +6,22 @@
     "start": "node app.js"
   },
   "dependencies": {
-    "express": "3.4.8",
-    "sqlite3": "*",
+    "express": "*",
     "passport": "*",
     "passport-local": "*",
+    "passport-strategy": "*",
     "node-arp": "*",
     "connect-flash": "*",
     "jade": "*",
-    "socket.io": "*"
+    "socket.io": "*",
+    "node-mysql": "*",
+    "mysql": "*",
+    "serve-favicon": "*",
+    "morgan": "*",
+    "body-parser": "*",
+    "cookie-parser": "*",
+    "express-session": "*",
+    "method-override": "*",
+    "errorhandler": "*"
   }
 }

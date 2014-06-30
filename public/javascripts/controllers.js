@@ -1,14 +1,27 @@
-function LoginCtrl($scope, $http, $location, Validator) {
+function LoginCtrl($scope, $http, $location, Validator, User, $log) {
     $scope.user = {
-        name: 'none',
-        password: 'none',
-        kimlikno: ''
+        name: '',
+        password: ''
     };
     var url = $location.absUrl();//for getting full url
 //    $scope.redirectPage = $location.path
-    $scope.init = function() {
-        alert("Init");
-    };
+/*    $scope.init = function() {
+        $http({
+                method: 'GET',
+                url: '/isloggedin'
+            })
+            .success(function(data, status, headers, config){
+                if(status === 401) {
+                    $location.path('login');
+                }
+                else {
+                    $location.path('success');
+                }
+            })
+            .error(function(data, status, headers, config){
+                alert("Error: " + status);
+            })
+    };*/
     $scope.login = function() {
         var user = $scope.user;
         $http({
@@ -31,8 +44,50 @@ function LoginCtrl($scope, $http, $location, Validator) {
     };
 }
 
-function SuccessCtrl($scope, $http, $location, socket, User) {
+function SuccessCtrl($scope, $http, $location, User, $log) {
     $scope.userinfo = User.info().query();//{username:"ozgen"};
+
+    $scope.options = [{
+        name: 'year',
+        value: 'extend-year'
+    }, {
+        name: 'month',
+        value: 'extend-month'
+    }];
+
+    $scope.optionsType = [{
+        name: 'enterprise',
+        value: 'type-enterprise'
+    }, {
+        name: 'community',
+        value: 'type-community'
+    }];
+
+    $scope.selectedOption = $scope.options[0];
+    
+    $scope.selectedTypeOption = $scope.optionsType[0];
+
+    $scope.extend = function() {
+        alert("extend");
+    }
+
+    $scope.change = function() {
+        alert("change");
+    }
+
+    $scope.expire = function() {
+        alert("expire");
+    }
+
+    $scope.status = {
+        isopen: false
+    };
+
+    $scope.toggleDropdown = function($event) {
+        $event.preventDefault();
+        $event.stopPropagation();
+        $scope.status.isopen = !$scope.status.isopen;
+    };
 
     $scope.logout = function() {
         $http({
@@ -45,14 +100,7 @@ function SuccessCtrl($scope, $http, $location, socket, User) {
                 alert("Error occured try again to logout")
             })
     };
-
-    socket.on("response", function(data) {
-        alert("Response: " + data);
-    });
-
-    $scope.connect = function() {
-        socket.emit("send", "hede");
-    }
+    
 }
 
 function InitCtrl($scope, $http, $location, User) {

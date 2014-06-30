@@ -17,6 +17,13 @@ var flash = require('connect-flash');
 
 var app = express();
 
+var morgan = require('morgan')
+var methodOverride = require('method-override');
+var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
+var errorhandler = require('errorhandler');
+
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
 
@@ -32,37 +39,34 @@ var options = {
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-app.use(express.favicon());
-app.use(express.logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded());
-app.use(express.methodOverride());
+app.use(morgan('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded());
+//app.use(methodOverride());
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.cookieParser());
-app.use(express.bodyParser());
-app.use(express.session({secret: 'ozgen'}));
+app.use(cookieParser());
+app.use(bodyParser());
+app.use(session({secret: 'ozgen'}));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
-app.use(app.router);
+//app.use(app.router);
 
 
 // development only
 if ('development' == app.get('env')) {
-  app.use(express.errorHandler());
+  app.use(errorhandler());
 }
 
 app.get('/', routes.index);
-app.get('/polls/polls', routes.list);
-app.get('/polls/:id', routes.poll);
-app.post('/polls', routes.create);
-app.get('/userinfo', routes.isLoggedIn, routes.userinfo);
+app.get('/userinfo', routes.isAuthenticated, routes.userinfo);
 app.get('/status', routes.userstatus);
 app.get('/success', routes.success);
 app.get('/failure', routes.failure);
 app.get('/logout', routes.logout);
+app.get('/isloggedin', routes.isloggedin)
 app.post('/login', passport.authenticate('local-login', {
         successRedirect: '/success',
         failureRedirect: '/failure',
@@ -74,9 +78,9 @@ io.sockets.on('connection', routes.connect);
 //io.sockets.on('disconnect', routes.disconnect);
 
 
-server.listen(app.get('port'), function(){
+/*server.listen(app.get('port'), function(){
+  console.log('Express server listening on port ' + app.get('port'));
+});*/
+https.createServer(options, app).listen(1443, function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
-//https.createServer(options, app).listen(443, function(){
-//  console.log('Express server listening on port ' + app.get('port'));
-//});

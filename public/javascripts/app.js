@@ -1,9 +1,9 @@
 // Angular module, defining routes for the app
-angular.module('polls', ['pollServices', 'validatorServices']).
+angular.module('polls', ['ngRoute', 'pollServices', 'validatorServices', 'ui.bootstrap']).
 	config(['$routeProvider', function($routeProvider) {
 		$routeProvider.
 			when('/login', { templateUrl: 'partials/login.html', controller: LoginCtrl }).
-            when('/success', { templateUrl: 'partials/success.html', controller: SuccessCtrl}).
+                        when('/success', { templateUrl: 'partials/success.html', controller: SuccessCtrl}).
 			when('/polls', { templateUrl: 'partials/list.html', controller: PollListCtrl }).
 			when('/poll/:pollId', { templateUrl: 'partials/item.html', controller: PollItemCtrl }).
 			when('/new', { templateUrl: 'partials/new.html', controller: PollNewCtrl }).

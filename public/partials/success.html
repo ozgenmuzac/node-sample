@@ -1,9 +1,76 @@
 <div class="page-header">
-	<h1>Success</h1>
+	<h1>License Console</h1>
 </div>
 
 <div class="form-group">
-    <label for="username">{{userinfo.username}}</label>
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#extend" data-toggle="tab">Extend License</a></li>
+        <li><a href="#change" data-toggle="tab">Change License Type</a></li>
+        <li><a href="#expire" data-toggle="tab">Expire Enterprise License</a></li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane active" id="extend">
+            <form role="form" ng-submit="extend()" name="extendform">
+	        <div class="form-group">
+                    <label for="email">License Email</label>
+                    <input type="text" id="email" class="form-control" ng-style="{ width: '30%'}">
+                    <div class="row">
+                        <label for="extendperiod">Extend Time</label>
+                        <input type="text" id="extendperiod" ng-pattern="/^[0-9]+$/" class="form-control" ng-style="{ width: '30%'}">
+                        <div class="btn-group" dropdown is-open="status.isopen" selected="1">
+                            <button type="button" class="btn btn-primary dropdown-toggle" ng-disabled="disabled">
+                                Time dropdown <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+<!--                                <li ng-repeat="option in options"><a href="#">{{option.name}}</a></li>-->
+                                <li><a href="#">year</a></li>
+                                <li><a href="#">month</a></li>
+                            </ul>
+                        </div>
+<!--                        <select ng-model="selectedOption" ng-options="option.name for option in options">
+                        </select>-->
+                    </div>
+                    <div class="row" id="test">
+		        <div class="col-xs-6">
+			    <button class="btn btn-primary pull-right" type="submit">Submit</button>
+		        </div>
+	            </div>
+                </div>
+            </form>
+        </div>
+        <div class="tab-pane" id="change">
+            <form role="form" ng-submit="change()" name="extendform">
+	        <div class="form-group">
+                    <label for="email1">License Email</label>
+                    <input type="text" id="email1" class="form-control" ng-style="{ width: '30%'}">
+                    <div class="row">
+                        <label for="type">Change Type</label>
+                        <select id="type" ng-model="selectedTypeOption" ng-options="option.name for option in options">
+                        </select>
+                    </div>
+                    <div class="row" id="test">
+		        <div class="col-xs-6">
+			    <button class="btn btn-primary pull-right" type="submit">Submit</button>
+		        </div>
+	            </div>
+                </div>
+            </form>
+        </div>
+        <div class="tab-pane" id="expire">
+            <form role="form" ng-submit="expire()" name="extendform">
+	        <div class="form-group">
+                    <label for="email2">License Email</label>
+                    <input type="text" id="email2" class="form-control" ng-style="{ width: '30%'}">
+                    <div class="row" id="test">
+		        <div class="col-xs-6">
+			    <button class="btn btn-primary pull-right" type="submit">Submit</button>
+		        </div>
+	            </div>
+                </div>
+            </form>
+        </div>
+</div>
 </div>
 	
 	

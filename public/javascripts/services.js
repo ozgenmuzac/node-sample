@@ -18,7 +18,8 @@ angular.module('pollServices', ['ngResource']).
                 return $resource('logout', {}, {
 			    query: { method: 'GET', isArray: false }
 		        });
-            }
+            },
+            isloggedin: $resource('isloggedin')
         };
 	}).
 	factory('socket', function($rootScope) {
