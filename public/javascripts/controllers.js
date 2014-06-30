@@ -83,7 +83,10 @@ function SuccessCtrl($scope, $http, $location, User, $log) {
         isopen: false
     };
 
+    $scope.selected = "Time Period";
+
     $scope.toggleDropdown = function($event) {
+        
         $event.preventDefault();
         $event.stopPropagation();
         $scope.status.isopen = !$scope.status.isopen;

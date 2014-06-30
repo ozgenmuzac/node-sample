@@ -20,16 +20,14 @@
                         <input type="text" id="extendperiod" ng-pattern="/^[0-9]+$/" class="form-control" ng-style="{ width: '30%'}">
                         <div class="btn-group" dropdown is-open="status.isopen" selected="1">
                             <button type="button" class="btn btn-primary dropdown-toggle" ng-disabled="disabled">
-                                Time dropdown <span class="caret"></span>
+                                {{selected}} <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu">
-<!--                                <li ng-repeat="option in options"><a href="#">{{option.name}}</a></li>-->
-                                <li><a href="#">year</a></li>
-                                <li><a href="#">month</a></li>
+                                <li ng-repeat="option in options"><a href="#">{{option.name}}</a></li>
+<!--                                <li><a href="#">year</a></li>
+                                <li><a href="#">month</a></li>-->
                             </ul>
                         </div>
-<!--                        <select ng-model="selectedOption" ng-options="option.name for option in options">
-                        </select>-->
                     </div>
                     <div class="row" id="test">
 		        <div class="col-xs-6">
